@@ -20,7 +20,6 @@ module Mongoid
             if options[:dry_run]
               logger.info("MONGOID: Would create indexes on #{model}:")
             else
-              raise 'oops'
               model.create_indexes
               logger.info("MONGOID: Created indexes on #{model}:")
             end
@@ -64,6 +63,24 @@ module Mongoid
         end
 
         undefined_by_model
+      end
+
+      # List indexes that exist in the database but aren't specified on the
+      # models.
+      #
+      # @example Remove undefined indexes.
+      #   Mongoid::Tasks::Database.list_undefined_indexes
+      #
+      # @return [ Hash{Class => Array(Hash)}] The list of indexes that were removed by model.
+      #
+      # @since 4.0.0
+      def list_undefined_indexes(models = ::Mongoid.models)
+        undefined_indexes(models).each do |model, indexes|
+          indexes.each do |index|
+            key = index['key'].symbolize_keys
+            logger.info("MONGOID: Index: #{index['name']} with key #{index['key']} on #{model}.")
+          end
+        end
       end
 
       # Remove indexes that exist in the database but aren't specified on the
