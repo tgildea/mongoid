@@ -8,6 +8,11 @@ namespace :db do
       ::Mongoid::Tasks::Database.create_indexes
     end
 
+    desc "List the indexes defined on your mongoid models"
+    task :list_indexes => [:environment, :load_models] do
+      ::Mongoid::Tasks::Database.create_indexes(::Mongoid.models, :dry_run => true)
+    end
+
     desc "Remove indexes that exist in the database but aren't specified on the models"
     task :remove_undefined_indexes => [:environment, :load_models] do
       ::Mongoid::Tasks::Database.remove_undefined_indexes

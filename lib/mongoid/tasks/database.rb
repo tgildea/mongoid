@@ -13,12 +13,18 @@ module Mongoid
       # @return [ Array<Class> ] The indexed models.
       #
       # @since 2.1.0
-      def create_indexes(models = ::Mongoid.models)
+      def create_indexes(models = ::Mongoid.models, options = {})
         models.each do |model|
           next if model.index_specifications.empty?
           if !model.embedded? || model.cyclic?
-            model.create_indexes
-            logger.info("MONGOID: Created indexes on #{model}:")
+            if options[:dry_run]
+              logger.info("MONGOID: Would create indexes on #{model}:")
+            else
+              raise 'oops'
+              model.create_indexes
+              logger.info("MONGOID: Created indexes on #{model}:")
+            end
+
             model.index_specifications.each do |spec|
               logger.info("MONGOID: Index: #{spec.key}, Options: #{spec.options}")
             end
